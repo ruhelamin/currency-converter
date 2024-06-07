@@ -6,16 +6,11 @@ export const CurrencyConverter = ({ heading }) => {
   const [exchangeRates, setExchangeRates] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  console.log("exchangeRates:", exchangeRates); // TODO: cleanup
 
   const [currencyOneName, setCurrencyOneName] = useState("USD");
   const [currencyTwoName, setCurrencyTwoName] = useState("EUR");
   const [currencyOneAmount, setCurrencyOneAmount] = useState();
   const [currencyTwoAmount, setCurrencyTwoAmount] = useState(1);
-  console.log("currencyOneName:", currencyOneName); // TODO: cleanup
-  console.log("currencyTwoName:", currencyTwoName); // TODO: cleanup
-  console.log("currencyOneAmount:", currencyOneAmount); // TODO: cleanup
-  console.log("currencyTwoAmount:", currencyTwoAmount); // TODO: cleanup
 
   useEffect(() => {
     const BASE_CURRENCY = { EUR: 1 };
@@ -68,20 +63,22 @@ export const CurrencyConverter = ({ heading }) => {
       return amount;
     }
 
-    return (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency];
+    return (
+      amount * (1 / exchangeRates[fromCurrency]) * exchangeRates[toCurrency]
+    );
   };
 
   const currencyOneLabel = `1 ${currencyOneName} = ${convertCurrency(
     1,
     currencyOneName,
     currencyTwoName
-  )} ${currencyTwoName}`;
+  ).toFixed(4)} ${currencyTwoName}`;
 
   const currencyTwoLabel = `1 ${currencyTwoName} = ${convertCurrency(
     1,
     currencyTwoName,
     currencyOneName
-  )} ${currencyOneName}`;
+  ).toFixed(4)} ${currencyOneName}`;
 
   const handleCurrencyOneNameChange = (e) => {
     const selectedCurrencyName = e.target.value;
@@ -122,22 +119,27 @@ export const CurrencyConverter = ({ heading }) => {
       <div className="currency-converter-container">
         <div className="currency-block">
           <label htmlFor="currency-one-amount">{currencyOneLabel}</label>
-          <select
-            name="currency-one-amount"
-            id="currency-one-amount"
-            value={currencyOneName}
-            onChange={handleCurrencyOneNameChange}
-          >
-            {Object.keys(exchangeRates).map((currency) => (
-              <option key={currency} value={currency}>
-                {currency}
-              </option>
-            ))}
-          </select>
+          <div className="select-wrapper">
+            <select
+              name="currency-one-amount"
+              id="currency-one-amount"
+              value={currencyOneName}
+              onChange={handleCurrencyOneNameChange}
+            >
+              {Object.keys(exchangeRates).map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </select>
+          </div>
           <input
             type="number"
             name="currency-one-amount"
-            value={currencyOneAmount}
+            value={new Intl.NumberFormat({
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            }).format(currencyOneAmount)}
             onChange={handleCurrencyOneAmountChange}
           />
         </div>
@@ -148,22 +150,27 @@ export const CurrencyConverter = ({ heading }) => {
 
         <div className="currency-block">
           <label htmlFor="currency-two-amount">{currencyTwoLabel}</label>
-          <select
-            name="currency-two-amount"
-            id="currency-two-amount"
-            value={currencyTwoName}
-            onChange={handleCurrencyTwoNameChange}
-          >
-            {Object.keys(exchangeRates).map((currency) => (
-              <option key={currency} value={currency}>
-                {currency}
-              </option>
-            ))}
-          </select>
+          <div className="select-wrapper">
+            <select
+              name="currency-two-amount"
+              id="currency-two-amount"
+              value={currencyTwoName}
+              onChange={handleCurrencyTwoNameChange}
+            >
+              {Object.keys(exchangeRates).map((currency) => (
+                <option key={currency} value={currency}>
+                  {currency}
+                </option>
+              ))}
+            </select>
+          </div>
           <input
             type="number"
             name="currency-two-amount"
-            value={currencyTwoAmount}
+            value={new Intl.NumberFormat({
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 2,
+            }).format(currencyTwoAmount)}
             onChange={handleCurrencyTwoAmountChange}
           />
         </div>
