@@ -6,7 +6,16 @@ export const CurrencyConverter = ({ heading }) => {
   const [exchangeRates, setExchangeRates] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  console.log("exchangeRates:", exchangeRates);
+  console.log("exchangeRates:", exchangeRates); // TODO: cleanup
+
+  const [currencyOneName, setCurrencyOneName] = useState("USD");
+  const [currencyTwoName, setCurrencyTwoName] = useState("EUR");
+  const [currencyOneAmount, setCurrencyOneAmount] = useState();
+  const [currencyTwoAmount, setCurrencyTwoAmount] = useState(1);
+  console.log("currencyOneName:", currencyOneName); // TODO: cleanup
+  console.log("currencyTwoName:", currencyTwoName); // TODO: cleanup
+  console.log("currencyOneAmount:", currencyOneAmount); // TODO: cleanup
+  console.log("currencyTwoAmount:", currencyTwoAmount); // TODO: cleanup
 
   useEffect(() => {
     const BASE_CURRENCY = { EUR: 1 };
@@ -35,6 +44,7 @@ export const CurrencyConverter = ({ heading }) => {
         });
 
         setExchangeRates({ ...BASE_CURRENCY, ...rates });
+        setCurrencyOneAmount(rates["USD"]);
         setLoading(false);
       } catch (error) {
         setError(error);
@@ -53,24 +63,83 @@ export const CurrencyConverter = ({ heading }) => {
     return <div>Error: {error.message}</div>;
   }
 
+  const convertCurrency = (amount, fromCurrency, toCurrency) => {
+    if (fromCurrency === toCurrency) {
+      return amount;
+    }
+
+    return (amount / exchangeRates[fromCurrency]) * exchangeRates[toCurrency];
+  };
+
+  const currencyOneLabel = `1 ${currencyOneName} = ${convertCurrency(
+    1,
+    currencyOneName,
+    currencyTwoName
+  )} ${currencyTwoName}`;
+
+  const currencyTwoLabel = `1 ${currencyTwoName} = ${convertCurrency(
+    1,
+    currencyTwoName,
+    currencyOneName
+  )} ${currencyOneName}`;
+
+  const handleCurrencyOneNameChange = (e) => {
+    const selectedCurrencyName = e.target.value;
+    setCurrencyOneName(selectedCurrencyName);
+    setCurrencyTwoAmount(
+      convertCurrency(currencyOneAmount, selectedCurrencyName, currencyTwoName)
+    );
+  };
+
+  const handleCurrencyTwoNameChange = (e) => {
+    const selectedCurrencyName = e.target.value;
+    setCurrencyTwoName(selectedCurrencyName);
+    setCurrencyTwoAmount(
+      convertCurrency(currencyOneAmount, currencyOneName, selectedCurrencyName)
+    );
+  };
+
+  const handleCurrencyOneAmountChange = (e) => {
+    const amount = e.target.value;
+    setCurrencyOneAmount(amount);
+    setCurrencyTwoAmount(
+      convertCurrency(amount, currencyOneName, currencyTwoName)
+    );
+  };
+
+  const handleCurrencyTwoAmountChange = (e) => {
+    const amount = e.target.value;
+    setCurrencyTwoAmount(amount);
+    setCurrencyOneAmount(
+      convertCurrency(amount, currencyTwoName, currencyOneName)
+    );
+  };
+
   return (
     <>
       {heading && <h1>{heading}</h1>}
 
       <div className="currency-converter-container">
         <div className="currency-block">
-          {/* TODO: make the label values dynamic based on selected currency and exchange rate */}
-          <label htmlFor="currency-one-amount">1 USD = 0.8110 EUR</label>
+          <label htmlFor="currency-one-amount">{currencyOneLabel}</label>
           <select
-            value="USD"
             name="currency-one-amount"
             id="currency-one-amount"
+            value={currencyOneName}
+            onChange={handleCurrencyOneNameChange}
           >
-            <option value="EUR">EUR</option>
-            <option value="USD">USD</option>
-            <option value="GBP">GBP</option>
+            {Object.keys(exchangeRates).map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
           </select>
-          <input type="number" name="currency-one-amount" value={1} />
+          <input
+            type="number"
+            name="currency-one-amount"
+            value={currencyOneAmount}
+            onChange={handleCurrencyOneAmountChange}
+          />
         </div>
 
         <div className="arrows-wrapper">
@@ -78,18 +147,25 @@ export const CurrencyConverter = ({ heading }) => {
         </div>
 
         <div className="currency-block">
-          {/* TODO: make the label values dynamic based on selected currency and exchange rate */}
-          <label htmlFor="currency-two-amount">1 EUR = 1.2331 USD</label>
+          <label htmlFor="currency-two-amount">{currencyTwoLabel}</label>
           <select
-            value="EUR"
             name="currency-two-amount"
             id="currency-two-amount"
+            value={currencyTwoName}
+            onChange={handleCurrencyTwoNameChange}
           >
-            <option value="EUR">EUR</option>
-            <option value="USD">USD</option>
-            <option value="GBP">GBP</option>
+            {Object.keys(exchangeRates).map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
           </select>
-          <input type="number" name="currency-two-amount" value={1} />
+          <input
+            type="number"
+            name="currency-two-amount"
+            value={currencyTwoAmount}
+            onChange={handleCurrencyTwoAmountChange}
+          />
         </div>
       </div>
     </>
