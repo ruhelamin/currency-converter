@@ -1,0 +1,21 @@
+.currency-converter-container {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+.currency-converter-container .currency-block {
+  display: flex;
+  flex-direction: column;
+  width: 120px;
+}
+.currency-converter-container label {
+  font-size: 12px;
+}
+@media screen and (min-width: 769px) {
+  .currency-converter-container {
+    width: 640px;
+  }
+  .currency-converter-container .currency-block {
+    width: 100%;
+  }
+}
